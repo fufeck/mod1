@@ -10,98 +10,105 @@
 //                                                                            //
 // ************************************************************************** //
 
-
-#include <string>
-#include <iostream>
 #include <exception>
-#include <SDL.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#include "unistd.h"
-void InitGL() {
+#include <unistd.h>
+#include "SceneOpenGl.hpp"
 
+SceneOpenGl				*SceneSingleton(SceneOpenGl *scene) {
+	static SceneOpenGl 	*ptr;
+
+	if (scene != NULL) {
+		ptr = scene;
+	}
+	return ptr;
 }
 
-void Reshape(int width, int height) {
+void 					reshape(int width, int height) {
 
-	glViewport(0,0,width,height);
+	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45, float(width) / float(height), 0.1, 100);
+	gluPerspective(45, double(width) / double(height) - 0.1, 0.1, 100);
 	glMatrixMode(GL_MODELVIEW);
-}	 
+}
 
-int 			map[20000][20000];
-std::vector<vec3>	points;
-float			heightMax;
-
-void		createMap(void) {
-	for (int x = 0; x < 20000; x++) {
-		for (int y = 0; y < 20000; y++) {
-			map[x][y] = 0;
-			for (int i = 0; i < points.size; i++) {
-				float dist = square(((x - points[i].x) * (y - points[i].y)) + ((y - points[i].y) * (y - points[i].y)));
-				float height = points[i].z / dist;
-				if (height > map[x][y]) {
-					map[x][y] = height;
-				}
-			}
-		}
+void					getColor(double y, double lvlWater) {
+	if (y >= lvlWater) {
+		if (y < 0.5)
+			glColor3d(y * 2, 0.6 - y * 2, 0);
+		else
+			glColor3d(1, (y - 0.5) * 2, (y - 0.5) * 2);
+	} else {
+		glColor3d(1 - ((lvlWater - y) * 1000), 1 - ((lvlWater - y) * 1000), 1);
 	}
 }
 
-void Draw()
-{	
-	glClear(GL_COLOR_BUFFER_BIT);
+void					drawMap(double **map, double lvlWater, double xMax, double zMax) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);
-	gluLookAt(25,20,25, 0, -20, 0, 0, 1, 0);
+	for (double x = 0; x < xMax; x += PAS) {
 
-	glBegin(GL_LINES);
-	glVertex2i(0,0);glVertex2i(0,50);
-	glVertex2i(0,0);glVertex2i(50,0);
-	glVertex2i(0,0);glVertex3i(0,0,50);
-	glEnd();
-
-	for (float x = 0; x < 20.0; x += 0.01) {
 		glBegin(GL_TRIANGLE_STRIP);
-		for (float z = 0; z < 20.0; z += 0.01) {
+		for (double z = 0; z < zMax; z += PAS) {
 
-			glColor3d(map[x][z] / heightMax, 1, 0);
-			glVertex3f(x, 0.0, z);
-			glVertex3f(x + 0.01, 0.0 ,z);
+			double		y = map[static_cast<int>(x * MUL)][static_cast<int>(z * MUL)];
+			getColor(y, lvlWater);
+			glVertex3f(x, y , z);
+
+			y = map[static_cast<int>((x + PAS) * MUL)][static_cast<int>(z * MUL)];
+			getColor(y, lvlWater);
+			glVertex3f(x + PAS, y ,z);
 
 		}
 		glEnd();
 	}
-/*	glColor3d(1,1,0);
-	glVertex3i(0,0,0);
+}
 
-	glColor3d(1,0,0);
-	glVertex3i(0,0,1);
+void 					draw(void) {
+	static bool			ap = false;
+	double 				xMax = static_cast<double>(X_MAX - 1) / MUL;
+	double 				zMax = static_cast<double>(Y_MAX - 1) / MUL;
+	double 				**map = SceneSingleton(NULL)->getMap();
+	double 				lvlWater = SceneSingleton(NULL)->getWater();
 
-	glColor3d(1,0,1);
-	glVertex3i(1,0,0);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	glColor3d(0,1,1);
-	glVertex3i(1,0,1);
-*/
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (ap == false) {
+		ap = true;
+		glMatrixMode(GL_MODELVIEW);
+		gluLookAt(6, 4, 6, 0, -5, 0, 0, 1, 0);
+	}
+	drawMap(map, lvlWater, xMax, zMax);
 	glutSwapBuffers();
+	glutPostRedisplay();
+}
+
+void 					initGL(void) {
 
 }
 
-int main( int argc, char **argv) {
+int			main(int ac, char **av) {
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(640,480);
-	glutCreateWindow("Ma première fenêtre OpenGL !");
+	if (ac == 3) {
+		try {
+			SceneOpenGl		scene(av[1], av[2]);
+			SceneSingleton(&scene);
+			glutInit(&ac, av);
+			glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+			glutInitWindowSize(scene.getWidth(), scene.getHeight());
+			glutCreateWindow("Mod1");
 
-	glutReshapeFunc(Reshape);
-	glutDisplayFunc(Draw);
-	InitGL();
-	glutMainLoop();
-	return 0;
+			glutReshapeFunc(reshape);
+			glutDisplayFunc(draw);
+			initGL();
+			glutMainLoop();
+
+		} catch (std::exception & e) {
+			return 0;
+		}
+	} else {
+		std::cout << "ERROR : Usage => ./mod1 filename + mode" << std::endl;
+		return 0;
+	}
+	return 1;
 }
