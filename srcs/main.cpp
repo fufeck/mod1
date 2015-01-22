@@ -35,58 +35,7 @@ void 					reshape(int width, int height) {
 	gluPerspective(45, double(width) / double(height) - 0.1, 0.1, 100);
 	glMatrixMode(GL_MODELVIEW);
 }
-/*
-void					getColor(double y, double lvlWater) {
-	if (y >= lvlWater) {
-		if (y < 0.5)
-			glColor3d(y * 2, 0.6 - y * 2, 0);
-		else
-			glColor3d(1, (y - 0.5) * 2, (y - 0.5) * 2);
-	} else {
-		glColor3d(1 - ((lvlWater - y) * 1000), 1 - ((lvlWater - y) * 1000), 1);
-	}
-}
 
-void					drawMap(double **map, double lvlWater, double xMax, double zMax) {
-
-	for (double x = 0; x < xMax; x += PAS) {
-
-		glBegin(GL_TRIANGLE_STRIP);
-		for (double z = 0; z < zMax; z += PAS) {
-
-			double		y = map[static_cast<int>(x * MUL)][static_cast<int>(z * MUL)];
-			getColor(y, lvlWater);
-			glVertex3f(x, y , z);
-
-			y = map[static_cast<int>((x + PAS) * MUL)][static_cast<int>(z * MUL)];
-			getColor(y, lvlWater);
-			glVertex3f(x + PAS, y ,z);
-
-		}
-		glEnd();
-	}
-}
-
-void 					draw(void) {
-	static bool			ap = false;
-	double 				xMax = static_cast<double>(X_MAX - 1) / MUL;
-	double 				zMax = static_cast<double>(Y_MAX - 1) / MUL;
-	double 				**map = SceneSingleton(NULL)->getMap();
-	double 				lvlWater = SceneSingleton(NULL)->getWater();
-
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (ap == false) {
-		ap = true;
-		glMatrixMode(GL_MODELVIEW);
-		gluLookAt(6, 4, 6, 0, -5, 0, 0, 1, 0);
-	}
-	drawMap(map, lvlWater, xMax, zMax);
-	glutSwapBuffers();
-	glutPostRedisplay();
-}
-*/
 void					drawMap(AScene *scene) {
 	point4f 			**points = scene->getMapPoints();
 	double 				xMax = static_cast<double>(X_MAX - 1) / MUL;
