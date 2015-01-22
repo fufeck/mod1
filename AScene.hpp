@@ -1,7 +1,7 @@
 // ************************************************************************** //
 //                                                                            //
 //                                                        :::      ::::::::   //
-//   SceneOpenGl.hpp                                    :+:      :+:    :+:   //
+//   AScene.hpp                                    :+:      :+:    :+:   //
 //                                                    +:+ +:+         +:+     //
 //   By: ftaffore <ftaffore@student.42.fr>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
@@ -10,8 +10,8 @@
 //                                                                            //
 // ************************************************************************** //
 
-#ifndef SCENE_OPENGL_HPP
-# define SCENE_OPENGL_HPP
+#ifndef A_SCENE_HPP
+# define A_SCENE_HPP
 
 #include <fstream>
 #include <algorithm>
@@ -24,52 +24,26 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
+#include "mod1.hpp"
 
-
-struct vec3f {
-	int		x;
-	int		y;
-	int		z;
-};
-
-enum Mode {
-	WATER,
-	WAVE
-};
-
-#define			X_MAX		500
-#define			Y_MAX		500
-#define			MUL			100
-#define			PAS			0.01
-
-class SceneOpenGl
+class AScene
 {
 
 #define 		DELIM		','
 
-private:
-	std::vector<vec3f *>	_points;
-	int 					_height;
-	int 					_width;
-	double 					_lvlWater;
+protected:
+	std::vector<vec3i *>	_points;
+	point4f 				**_mapPoints;
 	int						_maxZ;
-	double					**_map;
-	int						_mode;
-
 	
 	void					_createMap(void);
 	void 					_parsePoints(std::ifstream &myFile);
 public:
-	SceneOpenGl(std::string const & str, char *mode);
-	~SceneOpenGl();
+	AScene(std::string const & str);
+	virtual ~AScene();
 
-	double					**getMap(void) const;
-	double					getWater(void);
-	int						getHeight(void) const;
-	int						getWidth(void) const;
-	int						getMaxZ(void) const;
-	int						getMode(void) const;
-
+	point4f					**getMapPoints(void) const;
+	virtual void			actualiseMap(void) = 0;
 };
 
 #endif

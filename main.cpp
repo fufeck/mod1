@@ -12,10 +12,14 @@
 
 #include <exception>
 #include <unistd.h>
-#include "SceneOpenGl.hpp"
+#include "mod1.hpp"
+#include "AScene.hpp"
+#include "WaterScene.hpp"
+#include "WaveScene.hpp"
+#include "RainScene.hpp"
 
-SceneOpenGl				*SceneSingleton(SceneOpenGl *scene) {
-	static SceneOpenGl 	*ptr;
+AScene					*SceneSingleton(AScene *scene) {
+	static AScene 		*ptr;
 
 	if (scene != NULL) {
 		ptr = scene;
@@ -31,7 +35,7 @@ void 					reshape(int width, int height) {
 	gluPerspective(45, double(width) / double(height) - 0.1, 0.1, 100);
 	glMatrixMode(GL_MODELVIEW);
 }
-
+/*
 void					getColor(double y, double lvlWater) {
 	if (y >= lvlWater) {
 		if (y < 0.5)
@@ -82,7 +86,48 @@ void 					draw(void) {
 	glutSwapBuffers();
 	glutPostRedisplay();
 }
+*/
+void					drawMap(void) {
+	point4f 			**points = SceneSingleton(NULL)->getMapPoints();
+	double 				xMax = static_cast<double>(X_MAX - 1) / MUL;
+	double 				zMax = static_cast<double>(Z_MAX - 1) / MUL;
 
+	for (double x = 0; x < xMax; x += PAS) {
+
+		glBegin(GL_TRIANGLE_STRIP);
+		for (double z = 0; z < zMax; z += PAS) {
+
+			point4f point = points[static_cast<int>(x * MUL)][static_cast<int>(z * MUL)];
+			glColor3d(point.r, point.g, point.b);
+			glVertex3f(x, point.y ,z);
+
+			point = points[static_cast<int>((x + PAS) * MUL)][static_cast<int>(z * MUL)];
+			glColor3d(point.r, point.g, point.b);
+			glVertex3f(x + PAS, point.y ,z);
+
+		}
+		glEnd();
+	}
+}
+
+void 					draw(void) {
+	static bool			ap = false;
+
+	SceneSingleton(NULL)->actualiseMap();
+	
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (ap == false) {
+		ap = true;
+		glMatrixMode(GL_MODELVIEW);
+		gluLookAt(6, 4, 6, 0, -5, 0, 0, 1, 0);
+	}
+	drawMap();
+	glutSwapBuffers();
+	glutPostRedisplay();
+}
 void 					initGL(void) {
 
 }
@@ -91,11 +136,22 @@ int			main(int ac, char **av) {
 
 	if (ac == 3) {
 		try {
-			SceneOpenGl		scene(av[1], av[2]);
-			SceneSingleton(&scene);
+			std::string 	mode(av[2]);
+
+			if (mode == "WATER") {
+				SceneSingleton(new WaterScene(av[1]));
+			} else if (mode == "WAVE") {
+				SceneSingleton(new WaveScene(av[1]));
+			} else if (mode == "RAIN") {
+				SceneSingleton(new RainScene(av[1]));
+			} else {
+				std::cout << "ERROR : mode is not correct" << std::endl;
+				return 0;
+			}
+			//SceneSingleton(scene);
 			glutInit(&ac, av);
 			glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-			glutInitWindowSize(scene.getWidth(), scene.getHeight());
+			glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
 			glutCreateWindow("Mod1");
 
 			glutReshapeFunc(reshape);

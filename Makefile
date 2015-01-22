@@ -28,8 +28,11 @@ LIBS		=	$(HOME)/Library/Frameworks/SDL2.framework/SDL2 \
 
 CFLAGS		=	-Wno-deprecated-declarations -Werror -Wall -Wextra
 
-SRCS		=	SceneOpenGl.cpp \
-				main.cpp
+SRCS		=	main.cpp		\
+				AScene.cpp		\
+				WaterScene.cpp	\
+				WaveScene.cpp	\
+				RainScene.cpp
 				
 				
 OBJS		=	$(SRCS:.cpp=.o)
