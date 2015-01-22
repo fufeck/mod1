@@ -87,8 +87,8 @@ void 					draw(void) {
 	glutPostRedisplay();
 }
 */
-void					drawMap(void) {
-	point4f 			**points = SceneSingleton(NULL)->getMapPoints();
+void					drawMap(AScene *scene) {
+	point4f 			**points = scene->getMapPoints();
 	double 				xMax = static_cast<double>(X_MAX - 1) / MUL;
 	double 				zMax = static_cast<double>(Z_MAX - 1) / MUL;
 
@@ -110,10 +110,28 @@ void					drawMap(void) {
 	}
 }
 
+void					drawRain(RainScene *scene) {
+	std::vector<drop4f>	rain = scene->getRain();
+
+	glBegin(GL_LINES);
+	for (unsigned int i = 0; i < rain.size(); i++) {
+
+		float x = rain[i].x / static_cast<double>(MUL);
+		float z = rain[i].z / static_cast<double>(MUL);
+		float y = rain[i].y;
+		glColor3d(1, 1, 1);
+		glVertex3f(x, y, z);
+		glVertex3f(x, y + PAS , z);
+	}
+	glEnd();
+}
+
+
 void 					draw(void) {
 	static bool			ap = false;
-
-	SceneSingleton(NULL)->actualiseMap();
+	AScene 				*scene = SceneSingleton(NULL);
+	RainScene			*ptr;
+	scene->actualiseMap();
 	
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -124,7 +142,10 @@ void 					draw(void) {
 		glMatrixMode(GL_MODELVIEW);
 		gluLookAt(6, 4, 6, 0, -5, 0, 0, 1, 0);
 	}
-	drawMap();
+	drawMap(scene);
+	if ((ptr = dynamic_cast<RainScene *>(scene)) != NULL) {
+		drawRain(ptr);
+	}
 	glutSwapBuffers();
 	glutPostRedisplay();
 }

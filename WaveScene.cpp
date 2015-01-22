@@ -54,8 +54,6 @@ void			WaveScene::_waterCase(int x, int z, int x1, int z1) {
 		double		water1 = this->_water[x1][z1];
 	 	if (water1 < water) {
 
-	 		//std::cout << x1 << " " << z1 << std::endl;
-	 		//std::cout << this->_points[x1][z1].y << std::endl;
 			water1 = water1 + (water / 4.0) - this->_mapPoints[x1][z1].y / 4;
 			this->_water[x1][z1] = (water1 > 1) ? (1) : (water1);
 		}

@@ -78,11 +78,11 @@ void					AScene::_createMap(void) {
 		double			xx = (this->_points[i]->x < X_MAX / 2) ? (this->_points[i]->x) : (X_MAX - this->_points[i]->x);
 		double			yy = (this->_points[i]->y < Z_MAX / 2) ? (this->_points[i]->y) : (Z_MAX - this->_points[i]->y);
 		double         	domR = (xx > yy) ? (yy) : (xx);
-		double			domF = 3.0 / domR;
-		double 			xF = -3.0;
+		double			domF = 2.5 / domR;
+		double 			xF = -2.5;
 
 		for (int xR = this->_points[i]->x - domR; xR < this->_points[i]->x + domR; xR++) {
-			double 		yF = -3.0;
+			double 		yF = -2.5;
 			for (int yR = this->_points[i]->y - domR; yR < this->_points[i]->y + domR; yR++) {
 				double height = exp(0 - (xF * xF) - (yF * yF));
 				height = height * (this->_points[i]->z / static_cast<double>(this->_maxZ));

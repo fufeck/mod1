@@ -19,7 +19,6 @@ class WaveScene : public AScene
 {
 private:
 	double 					_water[X_MAX][Z_MAX];
-	int	 					_stop[X_MAX][Z_MAX];
 
 	void					_getColor(int x, int z);
 	void					_waterCase(int x, int z, int x1, int z1);

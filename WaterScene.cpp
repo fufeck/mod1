@@ -36,8 +36,8 @@ void			WaterScene::_getColor(int x, int z) {
 			this->_mapPoints[x][z].b = (y - 0.5) * 2;
 		}
 	} else {
-		this->_mapPoints[x][z].r = 1 - ((this->_lvlWater - y) * 1000);
-		this->_mapPoints[x][z].g = 1 - ((this->_lvlWater - y) * 1000);
+		this->_mapPoints[x][z].r = 1 - ((this->_lvlWater - y) * 1000) - 0.3;
+		this->_mapPoints[x][z].g = 1 - ((this->_lvlWater - y) * 1000) - 0.3;
 		this->_mapPoints[x][z].b = 1;
 	}
 }
